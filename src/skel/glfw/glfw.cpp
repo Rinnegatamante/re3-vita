@@ -31,6 +31,7 @@
 #include "AnimViewer.h"
 #include "Font.h"
 
+int _newlib_heap_size_user = 300 * 1024 * 1024;
 
 #define MAX_SUBSYSTEMS		(16)
 
@@ -99,13 +100,13 @@ void _psCreateFolder(const char *path)
 #else
 	struct stat info;
 	char fullpath[PATH_MAX];
-	realpath(path, fullpath);
+	// realpath(path, fullpath);
 
-	if (lstat(fullpath, &info) != 0) {
-		if (errno == ENOENT || (errno != EACCES && !S_ISDIR(info.st_mode))) {
-			mkdir(fullpath, 0755);
-		}
-	}
+	// if (lstat(fullpath, &info) != 0) {
+		// if (errno == ENOENT || (errno != EACCES && !S_ISDIR(info.st_mode))) {
+			// mkdir(fullpath, 0755);
+		// }
+	// }
 #endif
 }
 
@@ -175,10 +176,10 @@ psCameraBeginUpdate(RwCamera *camera)
 void
 psCameraShowRaster(RwCamera *camera)
 {
-	if (CMenuManager::m_PrefsVsync)
-		RwCameraShowRaster(camera, PSGLOBAL(window), rwRASTERFLIPWAITVSYNC);
-	else
-		RwCameraShowRaster(camera, PSGLOBAL(window), rwRASTERFLIPDONTWAIT);
+	// if (CMenuManager::m_PrefsVsync)
+		// RwCameraShowRaster(camera, PSGLOBAL(window), rwRASTERFLIPWAITVSYNC);
+	// else
+		// RwCameraShowRaster(camera, PSGLOBAL(window), rwRASTERFLIPDONTWAIT);
 
 	return;
 }
@@ -227,11 +228,11 @@ double
 psTimer(void)
 {
 	struct timespec start; 
-#ifdef __linux__
-	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-#else
-	clock_gettime(CLOCK_MONOTONIC, &start);
-#endif
+// #ifdef __linux__
+	// clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+// #else
+	// clock_gettime(CLOCK_MONOTONIC, &start);
+// #endif
 	return start.tv_sec * 1000.0 + start.tv_nsec/1000000.0;
 }
 #endif       
@@ -243,7 +244,7 @@ psTimer(void)
 void
 psMouseSetPos(RwV2d *pos)
 {
-	glfwSetCursorPos(PSGLOBAL(window), pos->x, pos->y);
+	// glfwSetCursorPos(PSGLOBAL(window), pos->x, pos->y);
 	
 	PSGLOBAL(lastMousePos.x) = (RwInt32)pos->x;
 
@@ -449,8 +450,8 @@ psInitialize(void)
 	debug("Available physical memory %u\n", systemInfo.freeram);
 #else
 	size_t total_mem_available, total_mem_usage;
-	svcGetInfo(&total_mem_available, 6, 0xffff8001, 0);
-	svcGetInfo(&total_mem_usage,     7, 0xffff8001, 0);
+	// svcGetInfo(&total_mem_available, 6, 0xffff8001, 0);
+	// svcGetInfo(&total_mem_usage,     7, 0xffff8001, 0);
 
 	debug("Total available memory %u\n", total_mem_available);
 	debug("Total memory usage %u\n", total_mem_usage);
@@ -820,49 +821,49 @@ psSelectDevice()
 	return TRUE;
 }
 
-void keypressCB(GLFWwindow* window, int key, int scancode, int action, int mods);
-void resizeCB(GLFWwindow* window, int width, int height);
-void scrollCB(GLFWwindow* window, double xoffset, double yoffset);
-void cursorCB(GLFWwindow* window, double xpos, double ypos);
-void cursorEnterCB(GLFWwindow* window, int entered);
-void joysChangeCB(int jid, int event);
+// void keypressCB(GLFWwindow* window, int key, int scancode, int action, int mods);
+// void resizeCB(GLFWwindow* window, int width, int height);
+// void scrollCB(GLFWwindow* window, double xoffset, double yoffset);
+// void cursorCB(GLFWwindow* window, double xpos, double ypos);
+// void cursorEnterCB(GLFWwindow* window, int entered);
+// void joysChangeCB(int jid, int event);
 
 bool IsThisJoystickBlacklisted(int i)
 {
-	const char *joyname = glfwGetJoystickName(i);
+	// const char *joyname = glfwGetJoystickName(i);
 
-	// this is just a keyboard and mouse
-	// Microsoft Microsoft® 2.4GHz Transceiver v8.0 Consumer Control
-	// Microsoft Microsoft® 2.4GHz Transceiver v8.0 System Control
-	if(strstr(joyname, "2.4GHz Transceiver"))
-		return true;
+	// // this is just a keyboard and mouse
+	// // Microsoft Microsoft® 2.4GHz Transceiver v8.0 Consumer Control
+	// // Microsoft Microsoft® 2.4GHz Transceiver v8.0 System Control
+	// if(strstr(joyname, "2.4GHz Transceiver"))
+		// return true;
 
 	return false;
 }
 
 void _InputInitialiseJoys()
 {
-	for (int i = 0; i <= GLFW_JOYSTICK_LAST; i++) {
-		if (glfwJoystickPresent(i) && !IsThisJoystickBlacklisted(i)) {
-			if (PSGLOBAL(joy1id) == -1)
-				PSGLOBAL(joy1id) = i;
-			else if (PSGLOBAL(joy2id) == -1)
-				PSGLOBAL(joy2id) = i;
-			else
-				break;
-		}
-	}
+	// for (int i = 0; i <= GLFW_JOYSTICK_LAST; i++) {
+		// if (glfwJoystickPresent(i) && !IsThisJoystickBlacklisted(i)) {
+			// if (PSGLOBAL(joy1id) == -1)
+				// PSGLOBAL(joy1id) = i;
+			// else if (PSGLOBAL(joy2id) == -1)
+				// PSGLOBAL(joy2id) = i;
+			// else
+				// break;
+		// }
+	// }
 
-	if (PSGLOBAL(joy1id) != -1) {
-		int count;
-		glfwGetJoystickButtons(PSGLOBAL(joy1id), &count);
-		ControlsManager.InitDefaultControlConfigJoyPad(count);
-	}
+	// if (PSGLOBAL(joy1id) != -1) {
+		// int count;
+		// glfwGetJoystickButtons(PSGLOBAL(joy1id), &count);
+		// ControlsManager.InitDefaultControlConfigJoyPad(count);
+	// }
 }
 
 long _InputInitialiseMouse()
 {
-	glfwSetInputMode(PSGLOBAL(window), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	// glfwSetInputMode(PSGLOBAL(window), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	return 0;
 }
 
@@ -871,20 +872,20 @@ void psPostRWinit(void)
 	RwVideoMode vm;
 	RwEngineGetVideoModeInfo(&vm, GcurSelVM);
 
-	#ifndef __SWITCH__
-	glfwSetKeyCallback(PSGLOBAL(window), keypressCB);
-	#endif
-	glfwSetWindowSizeCallback(PSGLOBAL(window), resizeCB);
-	glfwSetScrollCallback(PSGLOBAL(window), scrollCB);
-	glfwSetCursorPosCallback(PSGLOBAL(window), cursorCB);
-	glfwSetCursorEnterCallback(PSGLOBAL(window), cursorEnterCB);
-	glfwSetJoystickCallback(joysChangeCB);
+	// #ifndef __SWITCH__
+	// glfwSetKeyCallback(PSGLOBAL(window), keypressCB);
+	// #endif
+	// glfwSetWindowSizeCallback(PSGLOBAL(window), resizeCB);
+	// glfwSetScrollCallback(PSGLOBAL(window), scrollCB);
+	// glfwSetCursorPosCallback(PSGLOBAL(window), cursorCB);
+	// glfwSetCursorEnterCallback(PSGLOBAL(window), cursorEnterCB);
+	// glfwSetJoystickCallback(joysChangeCB);
 
 	_InputInitialiseJoys();
 	_InputInitialiseMouse();
 
-	if(!(vm.flags & rwVIDEOMODEEXCLUSIVE))
-		glfwSetWindowSize(PSGLOBAL(window), RsGlobal.maximumWidth, RsGlobal.maximumHeight);
+	// if(!(vm.flags & rwVIDEOMODEEXCLUSIVE))
+		// glfwSetWindowSize(PSGLOBAL(window), RsGlobal.maximumWidth, RsGlobal.maximumHeight);
 
 	// Make sure all keys are released
 	CPad::GetPad(0)->Clear(true);
@@ -1184,197 +1185,197 @@ void HandleExit()
 }
 
 #ifndef _WIN32
-void terminateHandler(int sig, siginfo_t *info, void *ucontext) {
-	RsGlobal.quit = TRUE;
-}
+// void terminateHandler(int sig, siginfo_t *info, void *ucontext) {
+	// RsGlobal.quit = TRUE;
+// }
 
-void dummyHandler(int sig){
-}
+// void dummyHandler(int sig){
+// }
 #endif
 
-void resizeCB(GLFWwindow* window, int width, int height) {
-	/*
-	* Handle event to ensure window contents are displayed during re-size
-	* as this can be disabled by the user, then if there is not enough
-	* memory things don't work.
-	*/
-	/* redraw window */
-	if (RwInitialised && (gGameState == GS_PLAYING_GAME || gGameState == GS_ANIMVIEWER))
-	{
-		RsEventHandler((gGameState == GS_PLAYING_GAME ? rsIDLE : rsANIMVIEWER), (void*)TRUE);
-	}
+// void resizeCB(GLFWwindow* window, int width, int height) {
+	// /*
+	// * Handle event to ensure window contents are displayed during re-size
+	// * as this can be disabled by the user, then if there is not enough
+	// * memory things don't work.
+	// */
+	// /* redraw window */
+	// if (RwInitialised && (gGameState == GS_PLAYING_GAME || gGameState == GS_ANIMVIEWER))
+	// {
+		// RsEventHandler((gGameState == GS_PLAYING_GAME ? rsIDLE : rsANIMVIEWER), (void*)TRUE);
+	// }
 
-	if (RwInitialised && height > 0 && width > 0) {
-		RwRect r;
+	// if (RwInitialised && height > 0 && width > 0) {
+		// RwRect r;
 
-		// TODO fix artifacts of resizing with mouse
-		RsGlobal.maximumHeight = height;
-		RsGlobal.maximumWidth = width;
+		// // TODO fix artifacts of resizing with mouse
+		// RsGlobal.maximumHeight = height;
+		// RsGlobal.maximumWidth = width;
 
-		r.x = 0;
-		r.y = 0;
-		r.w = width;
-		r.h = height;
+		// r.x = 0;
+		// r.y = 0;
+		// r.w = width;
+		// r.h = height;
 
-		RsEventHandler(rsCAMERASIZE, &r);
-	}
-//	glfwSetWindowPos(window, 0, 0);
-}
+		// RsEventHandler(rsCAMERASIZE, &r);
+	// }
+// //	glfwSetWindowPos(window, 0, 0);
+// }
 
-void scrollCB(GLFWwindow* window, double xoffset, double yoffset) {
-	PSGLOBAL(mouseWheel) = yoffset;
-}
+// void scrollCB(GLFWwindow* window, double xoffset, double yoffset) {
+	// PSGLOBAL(mouseWheel) = yoffset;
+// }
 
-int keymap[GLFW_KEY_LAST + 1];
+// int keymap[GLFW_KEY_LAST + 1];
 
 static void
 initkeymap(void)
 {
-	int i;
-	for (i = 0; i < GLFW_KEY_LAST + 1; i++)
-		keymap[i] = rsNULL;
+	// int i;
+	// for (i = 0; i < GLFW_KEY_LAST + 1; i++)
+		// keymap[i] = rsNULL;
 
-	keymap[GLFW_KEY_SPACE] = ' ';
-	keymap[GLFW_KEY_APOSTROPHE] = '\'';
-	keymap[GLFW_KEY_COMMA] = ',';
-	keymap[GLFW_KEY_MINUS] = '-';
-	keymap[GLFW_KEY_PERIOD] = '.';
-	keymap[GLFW_KEY_SLASH] = '/';
-	keymap[GLFW_KEY_0] = '0';
-	keymap[GLFW_KEY_1] = '1';
-	keymap[GLFW_KEY_2] = '2';
-	keymap[GLFW_KEY_3] = '3';
-	keymap[GLFW_KEY_4] = '4';
-	keymap[GLFW_KEY_5] = '5';
-	keymap[GLFW_KEY_6] = '6';
-	keymap[GLFW_KEY_7] = '7';
-	keymap[GLFW_KEY_8] = '8';
-	keymap[GLFW_KEY_9] = '9';
-	keymap[GLFW_KEY_SEMICOLON] = ';';
-	keymap[GLFW_KEY_EQUAL] = '=';
-	keymap[GLFW_KEY_A] = 'A';
-	keymap[GLFW_KEY_B] = 'B';
-	keymap[GLFW_KEY_C] = 'C';
-	keymap[GLFW_KEY_D] = 'D';
-	keymap[GLFW_KEY_E] = 'E';
-	keymap[GLFW_KEY_F] = 'F';
-	keymap[GLFW_KEY_G] = 'G';
-	keymap[GLFW_KEY_H] = 'H';
-	keymap[GLFW_KEY_I] = 'I';
-	keymap[GLFW_KEY_J] = 'J';
-	keymap[GLFW_KEY_K] = 'K';
-	keymap[GLFW_KEY_L] = 'L';
-	keymap[GLFW_KEY_M] = 'M';
-	keymap[GLFW_KEY_N] = 'N';
-	keymap[GLFW_KEY_O] = 'O';
-	keymap[GLFW_KEY_P] = 'P';
-	keymap[GLFW_KEY_Q] = 'Q';
-	keymap[GLFW_KEY_R] = 'R';
-	keymap[GLFW_KEY_S] = 'S';
-	keymap[GLFW_KEY_T] = 'T';
-	keymap[GLFW_KEY_U] = 'U';
-	keymap[GLFW_KEY_V] = 'V';
-	keymap[GLFW_KEY_W] = 'W';
-	keymap[GLFW_KEY_X] = 'X';
-	keymap[GLFW_KEY_Y] = 'Y';
-	keymap[GLFW_KEY_Z] = 'Z';
-	keymap[GLFW_KEY_LEFT_BRACKET] = '[';
-	keymap[GLFW_KEY_BACKSLASH] = '\\';
-	keymap[GLFW_KEY_RIGHT_BRACKET] = ']';
-	keymap[GLFW_KEY_GRAVE_ACCENT] = '`';
-	keymap[GLFW_KEY_ESCAPE] = rsESC;
-	keymap[GLFW_KEY_ENTER] = rsENTER;
-	keymap[GLFW_KEY_TAB] = rsTAB;
-	keymap[GLFW_KEY_BACKSPACE] = rsBACKSP;
-	keymap[GLFW_KEY_INSERT] = rsINS;
-	keymap[GLFW_KEY_DELETE] = rsDEL;
-	keymap[GLFW_KEY_RIGHT] = rsRIGHT;
-	keymap[GLFW_KEY_LEFT] = rsLEFT;
-	keymap[GLFW_KEY_DOWN] = rsDOWN;
-	keymap[GLFW_KEY_UP] = rsUP;
-	keymap[GLFW_KEY_PAGE_UP] = rsPGUP;
-	keymap[GLFW_KEY_PAGE_DOWN] = rsPGDN;
-	keymap[GLFW_KEY_HOME] = rsHOME;
-	keymap[GLFW_KEY_END] = rsEND;
-	keymap[GLFW_KEY_CAPS_LOCK] = rsCAPSLK;
-	keymap[GLFW_KEY_SCROLL_LOCK] = rsSCROLL;
-	keymap[GLFW_KEY_NUM_LOCK] = rsNUMLOCK;
-	keymap[GLFW_KEY_PRINT_SCREEN] = rsNULL;
-	keymap[GLFW_KEY_PAUSE] = rsPAUSE;
+	// keymap[GLFW_KEY_SPACE] = ' ';
+	// keymap[GLFW_KEY_APOSTROPHE] = '\'';
+	// keymap[GLFW_KEY_COMMA] = ',';
+	// keymap[GLFW_KEY_MINUS] = '-';
+	// keymap[GLFW_KEY_PERIOD] = '.';
+	// keymap[GLFW_KEY_SLASH] = '/';
+	// keymap[GLFW_KEY_0] = '0';
+	// keymap[GLFW_KEY_1] = '1';
+	// keymap[GLFW_KEY_2] = '2';
+	// keymap[GLFW_KEY_3] = '3';
+	// keymap[GLFW_KEY_4] = '4';
+	// keymap[GLFW_KEY_5] = '5';
+	// keymap[GLFW_KEY_6] = '6';
+	// keymap[GLFW_KEY_7] = '7';
+	// keymap[GLFW_KEY_8] = '8';
+	// keymap[GLFW_KEY_9] = '9';
+	// keymap[GLFW_KEY_SEMICOLON] = ';';
+	// keymap[GLFW_KEY_EQUAL] = '=';
+	// keymap[GLFW_KEY_A] = 'A';
+	// keymap[GLFW_KEY_B] = 'B';
+	// keymap[GLFW_KEY_C] = 'C';
+	// keymap[GLFW_KEY_D] = 'D';
+	// keymap[GLFW_KEY_E] = 'E';
+	// keymap[GLFW_KEY_F] = 'F';
+	// keymap[GLFW_KEY_G] = 'G';
+	// keymap[GLFW_KEY_H] = 'H';
+	// keymap[GLFW_KEY_I] = 'I';
+	// keymap[GLFW_KEY_J] = 'J';
+	// keymap[GLFW_KEY_K] = 'K';
+	// keymap[GLFW_KEY_L] = 'L';
+	// keymap[GLFW_KEY_M] = 'M';
+	// keymap[GLFW_KEY_N] = 'N';
+	// keymap[GLFW_KEY_O] = 'O';
+	// keymap[GLFW_KEY_P] = 'P';
+	// keymap[GLFW_KEY_Q] = 'Q';
+	// keymap[GLFW_KEY_R] = 'R';
+	// keymap[GLFW_KEY_S] = 'S';
+	// keymap[GLFW_KEY_T] = 'T';
+	// keymap[GLFW_KEY_U] = 'U';
+	// keymap[GLFW_KEY_V] = 'V';
+	// keymap[GLFW_KEY_W] = 'W';
+	// keymap[GLFW_KEY_X] = 'X';
+	// keymap[GLFW_KEY_Y] = 'Y';
+	// keymap[GLFW_KEY_Z] = 'Z';
+	// keymap[GLFW_KEY_LEFT_BRACKET] = '[';
+	// keymap[GLFW_KEY_BACKSLASH] = '\\';
+	// keymap[GLFW_KEY_RIGHT_BRACKET] = ']';
+	// keymap[GLFW_KEY_GRAVE_ACCENT] = '`';
+	// keymap[GLFW_KEY_ESCAPE] = rsESC;
+	// keymap[GLFW_KEY_ENTER] = rsENTER;
+	// keymap[GLFW_KEY_TAB] = rsTAB;
+	// keymap[GLFW_KEY_BACKSPACE] = rsBACKSP;
+	// keymap[GLFW_KEY_INSERT] = rsINS;
+	// keymap[GLFW_KEY_DELETE] = rsDEL;
+	// keymap[GLFW_KEY_RIGHT] = rsRIGHT;
+	// keymap[GLFW_KEY_LEFT] = rsLEFT;
+	// keymap[GLFW_KEY_DOWN] = rsDOWN;
+	// keymap[GLFW_KEY_UP] = rsUP;
+	// keymap[GLFW_KEY_PAGE_UP] = rsPGUP;
+	// keymap[GLFW_KEY_PAGE_DOWN] = rsPGDN;
+	// keymap[GLFW_KEY_HOME] = rsHOME;
+	// keymap[GLFW_KEY_END] = rsEND;
+	// keymap[GLFW_KEY_CAPS_LOCK] = rsCAPSLK;
+	// keymap[GLFW_KEY_SCROLL_LOCK] = rsSCROLL;
+	// keymap[GLFW_KEY_NUM_LOCK] = rsNUMLOCK;
+	// keymap[GLFW_KEY_PRINT_SCREEN] = rsNULL;
+	// keymap[GLFW_KEY_PAUSE] = rsPAUSE;
 
-	keymap[GLFW_KEY_F1] = rsF1;
-	keymap[GLFW_KEY_F2] = rsF2;
-	keymap[GLFW_KEY_F3] = rsF3;
-	keymap[GLFW_KEY_F4] = rsF4;
-	keymap[GLFW_KEY_F5] = rsF5;
-	keymap[GLFW_KEY_F6] = rsF6;
-	keymap[GLFW_KEY_F7] = rsF7;
-	keymap[GLFW_KEY_F8] = rsF8;
-	keymap[GLFW_KEY_F9] = rsF9;
-	keymap[GLFW_KEY_F10] = rsF10;
-	keymap[GLFW_KEY_F11] = rsF11;
-	keymap[GLFW_KEY_F12] = rsF12;
-	keymap[GLFW_KEY_F13] = rsNULL;
-	keymap[GLFW_KEY_F14] = rsNULL;
-	keymap[GLFW_KEY_F15] = rsNULL;
-	keymap[GLFW_KEY_F16] = rsNULL;
-	keymap[GLFW_KEY_F17] = rsNULL;
-	keymap[GLFW_KEY_F18] = rsNULL;
-	keymap[GLFW_KEY_F19] = rsNULL;
-	keymap[GLFW_KEY_F20] = rsNULL;
-	keymap[GLFW_KEY_F21] = rsNULL;
-	keymap[GLFW_KEY_F22] = rsNULL;
-	keymap[GLFW_KEY_F23] = rsNULL;
-	keymap[GLFW_KEY_F24] = rsNULL;
-	keymap[GLFW_KEY_F25] = rsNULL;
-	keymap[GLFW_KEY_KP_0] = rsPADINS;
-	keymap[GLFW_KEY_KP_1] = rsPADEND;
-	keymap[GLFW_KEY_KP_2] = rsPADDOWN;
-	keymap[GLFW_KEY_KP_3] = rsPADPGDN;
-	keymap[GLFW_KEY_KP_4] = rsPADLEFT;
-	keymap[GLFW_KEY_KP_5] = rsPAD5;
-	keymap[GLFW_KEY_KP_6] = rsPADRIGHT;
-	keymap[GLFW_KEY_KP_7] = rsPADHOME;
-	keymap[GLFW_KEY_KP_8] = rsPADUP;
-	keymap[GLFW_KEY_KP_9] = rsPADPGUP;
-	keymap[GLFW_KEY_KP_DECIMAL] = rsPADDEL;
-	keymap[GLFW_KEY_KP_DIVIDE] = rsDIVIDE;
-	keymap[GLFW_KEY_KP_MULTIPLY] = rsTIMES;
-	keymap[GLFW_KEY_KP_SUBTRACT] = rsMINUS;
-	keymap[GLFW_KEY_KP_ADD] = rsPLUS;
-	keymap[GLFW_KEY_KP_ENTER] = rsPADENTER;
-	keymap[GLFW_KEY_KP_EQUAL] = rsNULL;
-	keymap[GLFW_KEY_LEFT_SHIFT] = rsLSHIFT;
-	keymap[GLFW_KEY_LEFT_CONTROL] = rsLCTRL;
-	keymap[GLFW_KEY_LEFT_ALT] = rsLALT;
-	keymap[GLFW_KEY_LEFT_SUPER] = rsLWIN;
-	keymap[GLFW_KEY_RIGHT_SHIFT] = rsRSHIFT;
-	keymap[GLFW_KEY_RIGHT_CONTROL] = rsRCTRL;
-	keymap[GLFW_KEY_RIGHT_ALT] = rsRALT;
-	keymap[GLFW_KEY_RIGHT_SUPER] = rsRWIN;
-	keymap[GLFW_KEY_MENU] = rsNULL;
+	// keymap[GLFW_KEY_F1] = rsF1;
+	// keymap[GLFW_KEY_F2] = rsF2;
+	// keymap[GLFW_KEY_F3] = rsF3;
+	// keymap[GLFW_KEY_F4] = rsF4;
+	// keymap[GLFW_KEY_F5] = rsF5;
+	// keymap[GLFW_KEY_F6] = rsF6;
+	// keymap[GLFW_KEY_F7] = rsF7;
+	// keymap[GLFW_KEY_F8] = rsF8;
+	// keymap[GLFW_KEY_F9] = rsF9;
+	// keymap[GLFW_KEY_F10] = rsF10;
+	// keymap[GLFW_KEY_F11] = rsF11;
+	// keymap[GLFW_KEY_F12] = rsF12;
+	// keymap[GLFW_KEY_F13] = rsNULL;
+	// keymap[GLFW_KEY_F14] = rsNULL;
+	// keymap[GLFW_KEY_F15] = rsNULL;
+	// keymap[GLFW_KEY_F16] = rsNULL;
+	// keymap[GLFW_KEY_F17] = rsNULL;
+	// keymap[GLFW_KEY_F18] = rsNULL;
+	// keymap[GLFW_KEY_F19] = rsNULL;
+	// keymap[GLFW_KEY_F20] = rsNULL;
+	// keymap[GLFW_KEY_F21] = rsNULL;
+	// keymap[GLFW_KEY_F22] = rsNULL;
+	// keymap[GLFW_KEY_F23] = rsNULL;
+	// keymap[GLFW_KEY_F24] = rsNULL;
+	// keymap[GLFW_KEY_F25] = rsNULL;
+	// keymap[GLFW_KEY_KP_0] = rsPADINS;
+	// keymap[GLFW_KEY_KP_1] = rsPADEND;
+	// keymap[GLFW_KEY_KP_2] = rsPADDOWN;
+	// keymap[GLFW_KEY_KP_3] = rsPADPGDN;
+	// keymap[GLFW_KEY_KP_4] = rsPADLEFT;
+	// keymap[GLFW_KEY_KP_5] = rsPAD5;
+	// keymap[GLFW_KEY_KP_6] = rsPADRIGHT;
+	// keymap[GLFW_KEY_KP_7] = rsPADHOME;
+	// keymap[GLFW_KEY_KP_8] = rsPADUP;
+	// keymap[GLFW_KEY_KP_9] = rsPADPGUP;
+	// keymap[GLFW_KEY_KP_DECIMAL] = rsPADDEL;
+	// keymap[GLFW_KEY_KP_DIVIDE] = rsDIVIDE;
+	// keymap[GLFW_KEY_KP_MULTIPLY] = rsTIMES;
+	// keymap[GLFW_KEY_KP_SUBTRACT] = rsMINUS;
+	// keymap[GLFW_KEY_KP_ADD] = rsPLUS;
+	// keymap[GLFW_KEY_KP_ENTER] = rsPADENTER;
+	// keymap[GLFW_KEY_KP_EQUAL] = rsNULL;
+	// keymap[GLFW_KEY_LEFT_SHIFT] = rsLSHIFT;
+	// keymap[GLFW_KEY_LEFT_CONTROL] = rsLCTRL;
+	// keymap[GLFW_KEY_LEFT_ALT] = rsLALT;
+	// keymap[GLFW_KEY_LEFT_SUPER] = rsLWIN;
+	// keymap[GLFW_KEY_RIGHT_SHIFT] = rsRSHIFT;
+	// keymap[GLFW_KEY_RIGHT_CONTROL] = rsRCTRL;
+	// keymap[GLFW_KEY_RIGHT_ALT] = rsRALT;
+	// keymap[GLFW_KEY_RIGHT_SUPER] = rsRWIN;
+	// keymap[GLFW_KEY_MENU] = rsNULL;
 }
 
 bool lshiftStatus = false;
 bool rshiftStatus = false;
 
-void
-keypressCB(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key >= 0 && key <= GLFW_KEY_LAST) {
-		RsKeyCodes ks = (RsKeyCodes)keymap[key];
+// void
+// keypressCB(GLFWwindow* window, int key, int scancode, int action, int mods)
+// {
+	// if (key >= 0 && key <= GLFW_KEY_LAST) {
+		// RsKeyCodes ks = (RsKeyCodes)keymap[key];
 
-		if (key == GLFW_KEY_LEFT_SHIFT)
-			lshiftStatus = action != GLFW_RELEASE;
+		// if (key == GLFW_KEY_LEFT_SHIFT)
+			// lshiftStatus = action != GLFW_RELEASE;
 
-		if (key == GLFW_KEY_RIGHT_SHIFT)
-			rshiftStatus = action != GLFW_RELEASE;
+		// if (key == GLFW_KEY_RIGHT_SHIFT)
+			// rshiftStatus = action != GLFW_RELEASE;
 
-		if (action == GLFW_RELEASE) RsKeyboardEventHandler(rsKEYUP, &ks);
-		else if (action == GLFW_PRESS) RsKeyboardEventHandler(rsKEYDOWN, &ks);
-		else if (action == GLFW_REPEAT) RsKeyboardEventHandler(rsKEYDOWN, &ks);
-	}
-}
+		// if (action == GLFW_RELEASE) RsKeyboardEventHandler(rsKEYUP, &ks);
+		// else if (action == GLFW_PRESS) RsKeyboardEventHandler(rsKEYDOWN, &ks);
+		// else if (action == GLFW_REPEAT) RsKeyboardEventHandler(rsKEYDOWN, &ks);
+	// }
+// }
 
 // R* calls that in ControllerConfig, idk why
 void
@@ -1383,17 +1384,17 @@ _InputTranslateShiftKeyUpDown(RsKeyCodes *rs) {
 	RsKeyboardEventHandler(rshiftStatus ? rsKEYDOWN : rsKEYUP, &(*rs = rsRSHIFT));
 }
 
-// TODO this only works in frontend(and luckily only frontend use this). Fun fact: if I get pos manually in game, glfw reports that it's > 32000
-void
-cursorCB(GLFWwindow* window, double xpos, double ypos) {
-	FrontEndMenuManager.m_nMouseTempPosX = xpos;
-	FrontEndMenuManager.m_nMouseTempPosY = ypos;
-}
+// // TODO this only works in frontend(and luckily only frontend use this). Fun fact: if I get pos manually in game, glfw reports that it's > 32000
+// void
+// cursorCB(GLFWwindow* window, double xpos, double ypos) {
+	// FrontEndMenuManager.m_nMouseTempPosX = xpos;
+	// FrontEndMenuManager.m_nMouseTempPosY = ypos;
+// }
 
-void
-cursorEnterCB(GLFWwindow* window, int entered) {
-	PSGLOBAL(cursorIsInWindow) = !!entered;
-}
+// void
+// cursorEnterCB(GLFWwindow* window, int entered) {
+	// PSGLOBAL(cursorIsInWindow) = !!entered;
+// }
 
 /*
  *****************************************************************************
@@ -1423,6 +1424,9 @@ int
 main(int argc, char *argv[])
 {
 #endif
+	vglInitExtended(0x100000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
+	vglUseVram(GL_TRUE);
+	debug("%p", malloc(64 * 1024 * 1024));
 #ifdef __SWITCH__
 	#if DEBUG
 	socketInitializeDefault();
@@ -1452,7 +1456,6 @@ main(int argc, char *argv[])
 	{
 		return FALSE;
 	}
-
 #ifdef _WIN32
 	/*
 	 * Get proper command line params, cmdLine passed to us does not
@@ -1483,7 +1486,7 @@ main(int argc, char *argv[])
 	openParams.width = RsGlobal.maximumWidth;
 	openParams.height = RsGlobal.maximumHeight;
 	openParams.windowtitle = RsGlobal.appName;
-	openParams.window = &PSGLOBAL(window);
+	// openParams.window = &PSGLOBAL(window);
 	
 	ControlsManager.MakeControllerActionsBlank();
 	ControlsManager.InitDefaultControlConfiguration();
@@ -1493,10 +1496,13 @@ main(int argc, char *argv[])
 	 */
 	if( rsEVENTERROR == RsEventHandler(rsRWINITIALIZE, &openParams) )
 	{
+		debug("rsRWINITIALIZE failed");
 		RsEventHandler(rsTERMINATE, nil);
 
 		return 0;
 	}
+
+	debug("rsRWINITIALIZE ok");
 
 	psPostRWinit();
 
@@ -1615,15 +1621,15 @@ main(int argc, char *argv[])
 		
 		CTimer::Update();
 		
-		while( !RsGlobal.quit && !(FrontEndMenuManager.m_bWantToRestart || TheMemoryCard.b_FoundRecentSavedGameWantToLoad) && !glfwWindowShouldClose(PSGLOBAL(window)) )
+		while( !RsGlobal.quit && !(FrontEndMenuManager.m_bWantToRestart || TheMemoryCard.b_FoundRecentSavedGameWantToLoad)) )
 #else
-		while( !RsGlobal.quit && !FrontEndMenuManager.m_bWantToRestart && !glfwWindowShouldClose(PSGLOBAL(window)))
+		while( !RsGlobal.quit && !FrontEndMenuManager.m_bWantToRestart)
 #endif
 		{
 			#ifdef __SWITCH__
 			if(!appletMainLoop()) RsGlobal.quit = true;
 			#endif
-			glfwPollEvents();
+			// glfwPollEvents();
 			if( ForegroundApp )
 			{
 				switch ( gGameState )
@@ -1690,8 +1696,8 @@ main(int argc, char *argv[])
 #ifndef PS2_MENU
 					case GS_FRONTEND:
 					{
-						if(!glfwGetWindowAttrib(PSGLOBAL(window), GLFW_ICONIFIED))
-							RsEventHandler(rsFRONTENDIDLE, nil);
+						// if(!glfwGetWindowAttrib(PSGLOBAL(window), GLFW_ICONIFIED))
+							// RsEventHandler(rsFRONTENDIDLE, nil);
 
 #ifdef PS2_MENU
 						if ( !FrontEndMenuManager.m_bMenuActive || TheMemoryCard.m_bWantToLoad )
@@ -1920,107 +1926,107 @@ RwV2d rightStickPos;
 
 void CapturePad(RwInt32 padID)
 {
-	int8 glfwPad = -1;
+	// int8 glfwPad = -1;
 
-	if( padID == 0 )
-		glfwPad = PSGLOBAL(joy1id);
-	else if( padID == 1)
-		glfwPad = PSGLOBAL(joy2id);
-	else
-		assert("invalid padID");
+	// if( padID == 0 )
+		// glfwPad = PSGLOBAL(joy1id);
+	// else if( padID == 1)
+		// glfwPad = PSGLOBAL(joy2id);
+	// else
+		// assert("invalid padID");
 	
-	if ( glfwPad == -1 )
-		return;
+	// if ( glfwPad == -1 )
+		// return;
 	
-	int numButtons, numAxes;
-	const uint8 *buttons = glfwGetJoystickButtons(glfwPad, &numButtons);
-	const float *axes = glfwGetJoystickAxes(glfwPad, &numAxes);
-	GLFWgamepadstate gamepadState;
+	// int numButtons, numAxes;
+	// const uint8 *buttons = glfwGetJoystickButtons(glfwPad, &numButtons);
+	// const float *axes = glfwGetJoystickAxes(glfwPad, &numAxes);
+	// GLFWgamepadstate gamepadState;
 
-	if (ControlsManager.m_bFirstCapture == false)
-	{
-		memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
-	}
+	// if (ControlsManager.m_bFirstCapture == false)
+	// {
+		// memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
+	// }
 
-	ControlsManager.m_NewState.buttons = (uint8*)buttons;
-	ControlsManager.m_NewState.numButtons = numButtons;
-	ControlsManager.m_NewState.id = glfwPad;
-	ControlsManager.m_NewState.isGamepad = glfwJoystickIsGamepad(glfwPad);
-	if (ControlsManager.m_NewState.isGamepad) {
-		glfwGetGamepadState(glfwPad, &gamepadState);
-		memcpy(&ControlsManager.m_NewState.mappedButtons, gamepadState.buttons, sizeof(gamepadState.buttons));
-		ControlsManager.m_NewState.mappedButtons[15] = gamepadState.axes[4] > -0.8f;
-		ControlsManager.m_NewState.mappedButtons[16] = gamepadState.axes[5] > -0.8f;
-	}
-	// TODO I'm not sure how to find/what to do with L2-R2, if joystick isn't registered in SDL database.
+	// ControlsManager.m_NewState.buttons = (uint8*)buttons;
+	// ControlsManager.m_NewState.numButtons = numButtons;
+	// ControlsManager.m_NewState.id = glfwPad;
+	// ControlsManager.m_NewState.isGamepad = glfwJoystickIsGamepad(glfwPad);
+	// if (ControlsManager.m_NewState.isGamepad) {
+		// glfwGetGamepadState(glfwPad, &gamepadState);
+		// memcpy(&ControlsManager.m_NewState.mappedButtons, gamepadState.buttons, sizeof(gamepadState.buttons));
+		// ControlsManager.m_NewState.mappedButtons[15] = gamepadState.axes[4] > -0.8f;
+		// ControlsManager.m_NewState.mappedButtons[16] = gamepadState.axes[5] > -0.8f;
+	// }
+	// // TODO I'm not sure how to find/what to do with L2-R2, if joystick isn't registered in SDL database.
 
-	if (ControlsManager.m_bFirstCapture == true) {
-		memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
+	// if (ControlsManager.m_bFirstCapture == true) {
+		// memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
 		
-		ControlsManager.m_bFirstCapture = false;
-	}
+		// ControlsManager.m_bFirstCapture = false;
+	// }
 
-	RsPadButtonStatus bs;
-	bs.padID = padID;
+	// RsPadButtonStatus bs;
+	// bs.padID = padID;
 
-	RsPadEventHandler(rsPADBUTTONUP, (void *)&bs);
+	// RsPadEventHandler(rsPADBUTTONUP, (void *)&bs);
 	
-	// Gamepad axes are guaranteed to return 0.0f if that particular gamepad doesn't have that axis.
-	if ( glfwPad != -1 ) {
-		leftStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[0] : numAxes >= 0 ? axes[0] : 0.0f;
-		leftStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[1] : numAxes >= 1 ? axes[1] : 0.0f;
+	// // Gamepad axes are guaranteed to return 0.0f if that particular gamepad doesn't have that axis.
+	// if ( glfwPad != -1 ) {
+		// leftStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[0] : numAxes >= 0 ? axes[0] : 0.0f;
+		// leftStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[1] : numAxes >= 1 ? axes[1] : 0.0f;
 
-		rightStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[2] : numAxes >= 2 ? axes[2] : 0.0f;
-		rightStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[3] : numAxes >= 3 ? axes[3] : 0.0f;
-	}
+		// rightStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[2] : numAxes >= 2 ? axes[2] : 0.0f;
+		// rightStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[3] : numAxes >= 3 ? axes[3] : 0.0f;
+	// }
 	
-	{
-		if (CPad::m_bMapPadOneToPadTwo)
-			bs.padID = 1;
+	// {
+		// if (CPad::m_bMapPadOneToPadTwo)
+			// bs.padID = 1;
 		
-		RsPadEventHandler(rsPADBUTTONUP,   (void *)&bs);
-		RsPadEventHandler(rsPADBUTTONDOWN, (void *)&bs);
-	}
+		// RsPadEventHandler(rsPADBUTTONUP,   (void *)&bs);
+		// RsPadEventHandler(rsPADBUTTONDOWN, (void *)&bs);
+	// }
 	
-	{
-		if (CPad::m_bMapPadOneToPadTwo)
-			bs.padID = 1;
+	// {
+		// if (CPad::m_bMapPadOneToPadTwo)
+			// bs.padID = 1;
 		
-		CPad *pad = CPad::GetPad(bs.padID);
+		// CPad *pad = CPad::GetPad(bs.padID);
 
-		if ( Abs(leftStickPos.x)  > 0.3f )
-			pad->PCTempJoyState.LeftStickX	= (int32)(leftStickPos.x  * 128.0f);
+		// if ( Abs(leftStickPos.x)  > 0.3f )
+			// pad->PCTempJoyState.LeftStickX	= (int32)(leftStickPos.x  * 128.0f);
 		
-		if ( Abs(leftStickPos.y)  > 0.3f )
-			pad->PCTempJoyState.LeftStickY	= (int32)(leftStickPos.y  * 128.0f);
+		// if ( Abs(leftStickPos.y)  > 0.3f )
+			// pad->PCTempJoyState.LeftStickY	= (int32)(leftStickPos.y  * 128.0f);
 		
-		if ( Abs(rightStickPos.x) > 0.3f )
-			pad->PCTempJoyState.RightStickX = (int32)(rightStickPos.x * 128.0f);
+		// if ( Abs(rightStickPos.x) > 0.3f )
+			// pad->PCTempJoyState.RightStickX = (int32)(rightStickPos.x * 128.0f);
 
-		if ( Abs(rightStickPos.y) > 0.3f )
-			pad->PCTempJoyState.RightStickY = (int32)(rightStickPos.y * 128.0f);
-	}
+		// if ( Abs(rightStickPos.y) > 0.3f )
+			// pad->PCTempJoyState.RightStickY = (int32)(rightStickPos.y * 128.0f);
+	// }
 	
 	return;
 }
 
-void joysChangeCB(int jid, int event)
-{
-	if (event == GLFW_CONNECTED && !IsThisJoystickBlacklisted(jid))
-	{
-		if (PSGLOBAL(joy1id) == -1)
-			PSGLOBAL(joy1id) = jid;
-		else if (PSGLOBAL(joy2id) == -1)
-			PSGLOBAL(joy2id) = jid;
-	}
-	else if (event == GLFW_DISCONNECTED)
-	{
-		if (PSGLOBAL(joy1id) == jid)
-			PSGLOBAL(joy1id) = -1;
-		else if (PSGLOBAL(joy2id) == jid)
-			PSGLOBAL(joy2id) = -1;
-	}
-}
+// void joysChangeCB(int jid, int event)
+// {
+	// if (event == GLFW_CONNECTED && !IsThisJoystickBlacklisted(jid))
+	// {
+		// if (PSGLOBAL(joy1id) == -1)
+			// PSGLOBAL(joy1id) = jid;
+		// else if (PSGLOBAL(joy2id) == -1)
+			// PSGLOBAL(joy2id) = jid;
+	// }
+	// else if (event == GLFW_DISCONNECTED)
+	// {
+		// if (PSGLOBAL(joy1id) == jid)
+			// PSGLOBAL(joy1id) = -1;
+		// else if (PSGLOBAL(joy2id) == jid)
+			// PSGLOBAL(joy2id) = -1;
+	// }
+// }
 
 #if (defined(_MSC_VER))
 int strcasecmp(const char* str1, const char* str2)

@@ -759,6 +759,14 @@ DebugMenuPopulate(void)
 const int   re3_buffsize = 1024;
 static char re3_buff[re3_buffsize];
 
+void svcOutputDebugString(char *buf, int size) {
+  // SceUID fd = sceIoOpen("ux0:data/gta3.txt", SCE_O_WRONLY | SCE_O_CREAT | SCE_O_APPEND, 0777);
+  // if (fd >= 0) {
+    // sceIoWrite(fd, buf, size);
+    // sceIoClose(fd);
+  // }
+}
+
 void re3_assert(const char *expr, const char *filename, unsigned int lineno, const char *func)
 {
 #ifdef _WIN32
@@ -825,7 +833,7 @@ void re3_debug(const char *format, ...)
 	va_end(va);
 
 	printf("%s", re3_buff);
-	#ifdef __SWITCH__
+	#if defined(SWITCH) || defined(PSP2)
 	svcOutputDebugString(re3_buff, strlen(re3_buff));
 	#endif
 	CDebug::DebugAddText(re3_buff);
@@ -867,7 +875,7 @@ void re3_usererror(const char *format, ...)
 #else
 	vsprintf(re3_buff, format, va);
 	printf("\nRE3 Error!\n\t%s\n",re3_buff);
-	#ifdef __SWITCH__
+	#if defined(SWITCH) || defined(PSP2)
 	svcOutputDebugString(re3_buff, strlen(re3_buff));
 	#endif
 	assert(false);

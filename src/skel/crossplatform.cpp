@@ -26,8 +26,8 @@ void GetLocalTime_CP(SYSTEMTIME *out) {
 // Compatible with Linux/POSIX and MinGW on Windows
 #ifndef _WIN32
 HANDLE FindFirstFile(const char* pathname, WIN32_FIND_DATA* firstfile) {
-	char newpathname[32];
-	strncpy(newpathname, pathname, 32);
+	char newpathname[64];
+	snprintf(newpathname, sizeof(newpathname), "ux0:data/gta3/%s", pathname);
 	char* path = strtok(newpathname, "\\*");
 	strncpy(firstfile->folder, path, sizeof(firstfile->folder));
 
@@ -44,6 +44,8 @@ HANDLE FindFirstFile(const char* pathname, WIN32_FIND_DATA* firstfile) {
 	return d;
 }
 
+#define NAME_MAX 260
+
 bool FindNextFile(HANDLE d, WIN32_FIND_DATA* finddata) {
 	dirent *file;
 	static struct stat fileStats;
@@ -51,12 +53,12 @@ bool FindNextFile(HANDLE d, WIN32_FIND_DATA* finddata) {
 	int extensionLen = strlen(finddata->extension);
 	while ((file = readdir((DIR*)d)) != NULL) {
 
-		// We only want "DT_REG"ular Files, but reportedly some FS and OSes gives DT_UNKNOWN as type.
-		if ((file->d_type == DT_UNKNOWN || file->d_type == DT_REG) &&
-			(extensionLen == 0 || strncmp(&file->d_name[strlen(file->d_name) - extensionLen], finddata->extension, extensionLen) == 0)) {
+		if ((extensionLen == 0 || strncmp(&file->d_name[strlen(file->d_name) - extensionLen], finddata->extension, extensionLen) == 0)) {
 
 			sprintf(relativepath, "%s/%s", finddata->folder, file->d_name);
-			realpath(relativepath, path);
+			// realpath(relativepath, path);
+			strcpy(path, relativepath);
+			debug("FindNextFile %s\n", path);
 			stat(path, &fileStats);
 			strncpy(finddata->cFileName, file->d_name, sizeof(finddata->cFileName));
 			finddata->ftLastWriteTime = fileStats.st_mtime;

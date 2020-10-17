@@ -1,4 +1,4 @@
-TARGET		:= "Grand Theft Auto III"
+TARGET		:= GTA3
 TITLE		:= GTA000003
 
 SOURCES		:= src src/animation src/audio src/audio/oal src/audio/eax src/control src/core src/entities src/math src/modelinfo src/objects src/peds src/render src/rw src/save src/skel src/skel/glfw src/text src/vehicles src/weapons src/extras src/fakerw
@@ -16,18 +16,18 @@ CC      = $(PREFIX)-gcc
 CXX      = $(PREFIX)-g++
 ARCH	:=	-mtune=cortex-a9 -mfpu=neon
 CFLAGS	:=	-g -Wl,-q -ffunction-sections -O2 -ftree-vectorize $(ARCH) $(DEFINES)
-CFLAGS	+=	$(INCLUDE) -DPSP2 -DMASTER -DFINAL -DLIBRW -DRW_GL3 -DAUDIO_OAL -DLIBRW_GLAD
+CFLAGS	+=	$(INCLUDE) -DPSP2 -DDEBUG -DMASTER -DFINAL -DLIBRW -DRW_GL3 -DAUDIO_OAL -DLIBRW_GLAD
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-g $(ARCH) -Wl,-Map,$(notdir $*.map)
-LIBS	:=  -lrw -lopenal -lSDL2 -lvita2d -lSceDisplayUser_stub -lSceDisplay_stub -lSceCommonDialog_stub -lSceLibKernel_stub -lSceThreadmgr_stub \
-			-lSceModulemgr_stub -lSceSysmodule_stub -lvitashark -lSceShaccCg_stub -lvitagl -lmathneon -lSceGxm_stub \
+LIBS	:=  -lrw -lopenal -lSDL2 -lvita2d -lvitagl -lSceAppMgr_stub -lSceDisplay_stub -lSceCommonDialog_stub -lSceLibKernel_stub \
+			-lSceSysmodule_stub -lvitashark -lSceShaccCg_stub -lvitagl -lmathneon -lSceGxm_stub \
 			-lSceCtrl_stub -lSceHid_stub -lSceAudio_stub -lSceTouch_stub -lm -lpthread -lmpg123
 
 all: $(TARGET).vpk
 
 $(TARGET).vpk: $(TARGET).velf
-	vita-make-fself -s $< build/eboot.bin
+	vita-make-fself -c -s $< build/eboot.bin
 	vita-mksfoex -s TITLE_ID=$(TITLE) -d ATTRIBUTE2=12 $(TARGET) param.sfo
 	cp -f param.sfo build/sce_sys/param.sfo
 

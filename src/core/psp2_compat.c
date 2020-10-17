@@ -1,5 +1,8 @@
-#ifdef __SWITCH__
+#if defined(__SWITCH__) || defined(PSP2)
 
+#include <psp2/io/dirent.h>
+#include <psp2/io/fcntl.h>
+#include <psp2/io/stat.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -9,8 +12,29 @@
 #include <errno.h>
 #include <dirent.h>
 
+#include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define PATH_MAX 1024
+
+int printf( const char * format, ... ) {
+  va_list list;
+  char string[512];
+
+  va_start(list, format);
+  vsnprintf(string, sizeof(string), format, list);
+  va_end(list);
+
+  SceUID fd = sceIoOpen("ux0:data/gta3.txt", SCE_O_WRONLY | SCE_O_CREAT | SCE_O_APPEND, 0777);
+  if (fd >= 0) {
+    sceIoWrite(fd, string, strlen(string));
+    sceIoClose(fd);
+  }
+
+  return 0;
+}
 
 /* Taken from glibc */
 char *realpath(const char *name, char *resolved)

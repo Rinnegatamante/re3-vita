@@ -315,56 +315,69 @@ RsRwInitialize(void *displayID)
 	 
 	if (!RwEngineInit(psGetMemoryFunctions(), 0, rsRESOURCESDEFAULTARENASIZE))
 	{
+		debug("RwEngineInit error");
 		return (FALSE);
 	}
-
+	debug("RwEngineInit ok");
 	/*
 	 * Install any platform specific file systems...
 	 */
 	psInstallFileSystem();
-	
+	debug("psInstallFileSystem ok");
+
 	/*
 	 * Initialize debug message handling...
 	 */
 	RsEventHandler(rsINITDEBUG, nil);
+	debug("rsINITDEBUG ok");
 
 	/*
 	 * Attach all plugins...
 	 */
 	if (RsEventHandler(rsPLUGINATTACH, nil) == rsEVENTERROR)
 	{
+		debug("rsPLUGINATTACH error");
 		return (FALSE);
 	}
+	debug("rsPLUGINATTACH ok");
 
 	/*
 	 * Attach input devices...
 	 */
 	if (RsEventHandler(rsINPUTDEVICEATTACH, nil) == rsEVENTERROR)
 	{
+		debug("rsINPUTDEVICEATTACH error");
 		return (FALSE);
 	}
-	
+	debug("rsINPUTDEVICEATTACH ok");
+
 	openParams.displayID = displayID;
 
 	if (!RwEngineOpen(&openParams))
 	{
+		debug("RwEngineOpen error");
 		RwEngineTerm();
 		return (FALSE);
 	}
-	
+	debug("RwEngineOpen ok");
+
 	if (RsEventHandler(rsSELECTDEVICE, displayID) == rsEVENTERROR)
 	{
+		debug("rsSELECTDEVICE error");
 		RwEngineClose();
 		RwEngineTerm();
 		return (FALSE);
 	}
-	
+	debug("rsSELECTDEVICE ok");
+
 	if (!RwEngineStart())
 	{
+		debug("RwEngineStart error");
 		RwEngineClose();
 		RwEngineTerm();
 		return (FALSE);
 	}
+	debug("RwEngineStart ok");
 
 	/*
 	 * Register loaders for an image with a particular file extension...
