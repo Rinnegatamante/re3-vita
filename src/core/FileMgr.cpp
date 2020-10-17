@@ -35,7 +35,7 @@ static myFILE myfiles[NUMFILES];
 #define _getcwd getcwd
 
 #define MAX_CURDIR_PATH 512
-char cur_dir[MAX_CURDIR_PATH] = "ux0:/data/gta3/";
+char cur_dir[MAX_CURDIR_PATH] = "ux0:data/gta3";
 char *getcwd(char *buf, size_t size) {
     if (buf != NULL) {
         strncpy(buf, cur_dir, size);
@@ -43,11 +43,13 @@ char *getcwd(char *buf, size_t size) {
     return cur_dir;
 }
 int chdir(const char *path) {
-		if (path[0] == '/')
-			snprintf(cur_dir, sizeof(cur_dir), "ux0:%s", path);
-		else if (path[0] == '.' && path[1] == '/')
-			snprintf(cur_dir, sizeof(cur_dir), "%s%s", cur_dir, path + 2);
-    debug("chdir: %s -> %s\n", path, cur_dir);
+		if (strncmp(path, "ux0:", 4) == 0) {
+			debug("absolute chdir: %s -> %s\n", cur_dir, path);
+			strcpy(cur_dir, path);
+		} else {
+			debug("relative path: %s -> %s/%s\n", cur_dir, cur_dir, path);
+			sprintf(cur_dir, "%s/%s", cur_dir, path);
+		}
     return 0;
 }
 
@@ -70,9 +72,8 @@ void mychdir(char const *path)
 static int
 myfopen(const char *filename, const char *mode)
 {
-  char file[512];
-  snprintf(file, sizeof(file), "%s/%s", cur_dir, filename);
-  debug("myfopen: %s\n", file);
+	char file[512];
+	snprintf(file, sizeof(file), "%s/%s", cur_dir, filename);
 
 	int fd;
 	char realmode[10], *p;
@@ -93,6 +94,7 @@ found:
 	*p = '\0';
 	
 	myfiles[fd].file = fcaseopen(file, realmode);
+	debug("fcaseopen %s: %p\n", file, myfiles[fd].file);
 	if(myfiles[fd].file == nil)
 		return 0;
 	return fd;

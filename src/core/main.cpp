@@ -538,7 +538,6 @@ LoadingScreen(const char *str1, const char *str2, const char *splashscreen)
 #endif
 
 	splash = LoadSplash(splashscreen);
-
 #ifndef GTA_PS2
 	if(RsGlobal.quit)
 		return;

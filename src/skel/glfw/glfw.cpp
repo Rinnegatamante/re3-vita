@@ -31,7 +31,7 @@
 #include "AnimViewer.h"
 #include "Font.h"
 
-int _newlib_heap_size_user = 300 * 1024 * 1024;
+int _newlib_heap_size_user = 256 * 1024 * 1024;
 
 #define MAX_SUBSYSTEMS		(16)
 
@@ -1424,9 +1424,6 @@ int
 main(int argc, char *argv[])
 {
 #endif
-	vglInitExtended(0x100000, 960, 544, 0x100000, SCE_GXM_MULTISAMPLE_4X);
-	vglUseVram(GL_TRUE);
-	debug("%p", malloc(64 * 1024 * 1024));
 #ifdef __SWITCH__
 	#if DEBUG
 	socketInitializeDefault();
@@ -1496,13 +1493,10 @@ main(int argc, char *argv[])
 	 */
 	if( rsEVENTERROR == RsEventHandler(rsRWINITIALIZE, &openParams) )
 	{
-		debug("rsRWINITIALIZE failed");
 		RsEventHandler(rsTERMINATE, nil);
 
 		return 0;
 	}
-
-	debug("rsRWINITIALIZE ok");
 
 	psPostRWinit();
 
@@ -1639,7 +1633,7 @@ main(int argc, char *argv[])
 #ifdef NO_MOVIES
 						gGameState = GS_INIT_ONCE;
 #else
-						gGameState = GS_INIT_LOGO_MPEG;
+						gGameState = GS_INIT_ONCE;
 #endif
 						TRACE("gGameState = GS_INIT_ONCE");
 						break;
@@ -1793,7 +1787,6 @@ main(int argc, char *argv[])
 				
 			}
 		}
-
 		
 		/* 
 		* About to shut down - block resize events again...
