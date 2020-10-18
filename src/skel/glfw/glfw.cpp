@@ -201,6 +201,39 @@ psGrabScreen(RwCamera *pCamera)
 	return nil;
 }
 
+#define CLOCK_MONOTONIC 0
+
+#include <psp2/kernel/processmgr.h>
+#include <psp2/rtc.h>
+
+int clock_gettime(int clk_id, struct timespec *tp) {
+    if (clk_id == CLOCK_MONOTONIC)
+    {
+        SceKernelSysClock ticks;
+        sceKernelGetProcessTime(&ticks);
+
+        tp->tv_sec = ticks/(1000*1000);
+        tp->tv_nsec = (ticks * 1000) % (1000*1000*1000);
+
+        return 0;
+    }
+
+    else if (clk_id == CLOCK_REALTIME)
+    {
+        time_t seconds;
+        SceDateTime time;
+        sceRtcGetCurrentClockLocalTime(&time);
+
+        sceRtcGetTime_t(&time, &seconds);
+
+        tp->tv_sec = seconds;
+        tp->tv_nsec = time.microsecond * 1000;
+        return 0;
+    }
+
+    return -ENOSYS;
+}
+
 /*
  *****************************************************************************
  */
@@ -228,11 +261,11 @@ double
 psTimer(void)
 {
 	struct timespec start; 
-// #ifdef __linux__
-	// clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-// #else
-	// clock_gettime(CLOCK_MONOTONIC, &start);
-// #endif
+#ifdef __linux__
+	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+#else
+	clock_gettime(CLOCK_MONOTONIC, &start);
+#endif
 	return start.tv_sec * 1000.0 + start.tv_nsec/1000000.0;
 }
 #endif       

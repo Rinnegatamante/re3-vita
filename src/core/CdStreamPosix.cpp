@@ -195,15 +195,13 @@ GetGTA3ImgSize(void)
     struct stat statbuf;
 
     char path[PATH_MAX];
-	sprintf(path, "ux0:data/gta3/models/gta3.img");
-	
-    // realpath(gImgNames[0], path);
+    strcpy(path, gImgNames[0]);
     if (stat(path, &statbuf) == -1) {
 		// Try case-insensitivity
 		char* real = casepath(gImgNames[0], false);
 		if (real)
 		{
-			// realpath(real, path);
+			strcpy(path, real);
 			free(real);
     		if (stat(path, &statbuf) != -1)
 				goto ok;
