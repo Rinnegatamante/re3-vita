@@ -201,6 +201,57 @@ psGrabScreen(RwCamera *pCamera)
 	return nil;
 }
 
+unsigned char gButtons[GLFW_GAMEPAD_BUTTON_LAST+1];
+float gAxes[GLFW_GAMEPAD_AXIS_LAST+1];
+
+unsigned char* glfwGetJoystickButtons(int jid, int* count)
+{
+	SceCtrlData pad;
+	sceCtrlPeekBufferPositive(0, &pad, 1);
+	gButtons[GLFW_GAMEPAD_BUTTON_CROSS]        = pad.buttons & SCE_CTRL_CROSS    ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_CIRCLE]       = pad.buttons & SCE_CTRL_CIRCLE   ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_SQUARE]       = pad.buttons & SCE_CTRL_SQUARE   ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_TRIANGLE]     = pad.buttons & SCE_CTRL_TRIANGLE ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_LEFT_BUMPER]  = pad.buttons & SCE_CTRL_LTRIGGER ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER] = pad.buttons & SCE_CTRL_RTRIGGER ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_BACK]         = pad.buttons & SCE_CTRL_SELECT   ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_START]        = pad.buttons & SCE_CTRL_START    ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_GUIDE]        = GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_LEFT_THUMB]   = GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_RIGHT_THUMB]  = GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_DPAD_UP]      = pad.buttons & SCE_CTRL_UP       ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_DPAD_RIGHT]   = pad.buttons & SCE_CTRL_RIGHT    ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN]    = pad.buttons & SCE_CTRL_DOWN     ? GLFW_PRESS : GLFW_RELEASE;
+	gButtons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT]    = pad.buttons & SCE_CTRL_LEFT     ? GLFW_PRESS : GLFW_RELEASE;
+	if (count)
+		*count = GLFW_GAMEPAD_BUTTON_LAST+1; // TODO(theflow): correct?
+	return gButtons;
+}
+
+float* glfwGetJoystickAxes(int jid, int* count)
+{
+	// TODO(theflow): Add axes support
+	memset(gAxes, 0, sizeof(gAxes));
+	return gAxes;
+}
+
+int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
+{
+	glfwGetJoystickButtons(jid, NULL);
+	memcpy(state->buttons, gButtons, sizeof(gButtons));
+	return 1;
+}
+
+int glfwJoystickPresent(int jid)
+{
+	return 1;
+}
+
+int glfwJoystickIsGamepad(int jid)
+{
+	return 1;
+}
+
 #define CLOCK_MONOTONIC 0
 
 #include <psp2/kernel/processmgr.h>
@@ -887,11 +938,13 @@ void _InputInitialiseJoys()
 		// }
 	// }
 
-	// if (PSGLOBAL(joy1id) != -1) {
-		// int count;
-		// glfwGetJoystickButtons(PSGLOBAL(joy1id), &count);
-		// ControlsManager.InitDefaultControlConfigJoyPad(count);
-	// }
+	PSGLOBAL(joy1id) = 0;
+
+	if (PSGLOBAL(joy1id) != -1) {
+		int count;
+		glfwGetJoystickButtons(PSGLOBAL(joy1id), &count);
+		ControlsManager.InitDefaultControlConfigJoyPad(count);
+	}
 }
 
 long _InputInitialiseMouse()
@@ -1956,86 +2009,86 @@ RwV2d rightStickPos;
 
 void CapturePad(RwInt32 padID)
 {
-	// int8 glfwPad = -1;
+	int8 glfwPad = -1;
 
-	// if( padID == 0 )
-		// glfwPad = PSGLOBAL(joy1id);
-	// else if( padID == 1)
-		// glfwPad = PSGLOBAL(joy2id);
-	// else
-		// assert("invalid padID");
+	if( padID == 0 )
+		glfwPad = PSGLOBAL(joy1id);
+	else if( padID == 1)
+		glfwPad = PSGLOBAL(joy2id);
+	else
+		assert("invalid padID");
 	
-	// if ( glfwPad == -1 )
-		// return;
+	if ( glfwPad == -1 )
+		return;
+
+	int numButtons, numAxes;
+	const uint8 *buttons = glfwGetJoystickButtons(glfwPad, &numButtons);
+	const float *axes = glfwGetJoystickAxes(glfwPad, &numAxes);
+	GLFWgamepadstate gamepadState;
+
+	if (ControlsManager.m_bFirstCapture == false)
+	{
+		memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
+	}
+
+	ControlsManager.m_NewState.buttons = (uint8*)buttons;
+	ControlsManager.m_NewState.numButtons = numButtons;
+	ControlsManager.m_NewState.id = glfwPad;
+	ControlsManager.m_NewState.isGamepad = glfwJoystickIsGamepad(glfwPad);
+	if (ControlsManager.m_NewState.isGamepad) {
+		glfwGetGamepadState(glfwPad, &gamepadState);
+		memcpy(&ControlsManager.m_NewState.mappedButtons, gamepadState.buttons, sizeof(gamepadState.buttons));
+		ControlsManager.m_NewState.mappedButtons[15] = gamepadState.axes[4] > -0.8f;
+		ControlsManager.m_NewState.mappedButtons[16] = gamepadState.axes[5] > -0.8f;
+	}
+	// TODO I'm not sure how to find/what to do with L2-R2, if joystick isn't registered in SDL database.
+
+	if (ControlsManager.m_bFirstCapture == true) {
+		memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
+		
+		ControlsManager.m_bFirstCapture = false;
+	}
+
+	RsPadButtonStatus bs;
+	bs.padID = padID;
+
+	RsPadEventHandler(rsPADBUTTONUP, (void *)&bs);
 	
-	// int numButtons, numAxes;
-	// const uint8 *buttons = glfwGetJoystickButtons(glfwPad, &numButtons);
-	// const float *axes = glfwGetJoystickAxes(glfwPad, &numAxes);
-	// GLFWgamepadstate gamepadState;
+	// Gamepad axes are guaranteed to return 0.0f if that particular gamepad doesn't have that axis.
+	if ( glfwPad != -1 ) {
+		leftStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[0] : numAxes >= 0 ? axes[0] : 0.0f;
+		leftStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[1] : numAxes >= 1 ? axes[1] : 0.0f;
 
-	// if (ControlsManager.m_bFirstCapture == false)
-	// {
-		// memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
-	// }
-
-	// ControlsManager.m_NewState.buttons = (uint8*)buttons;
-	// ControlsManager.m_NewState.numButtons = numButtons;
-	// ControlsManager.m_NewState.id = glfwPad;
-	// ControlsManager.m_NewState.isGamepad = glfwJoystickIsGamepad(glfwPad);
-	// if (ControlsManager.m_NewState.isGamepad) {
-		// glfwGetGamepadState(glfwPad, &gamepadState);
-		// memcpy(&ControlsManager.m_NewState.mappedButtons, gamepadState.buttons, sizeof(gamepadState.buttons));
-		// ControlsManager.m_NewState.mappedButtons[15] = gamepadState.axes[4] > -0.8f;
-		// ControlsManager.m_NewState.mappedButtons[16] = gamepadState.axes[5] > -0.8f;
-	// }
-	// // TODO I'm not sure how to find/what to do with L2-R2, if joystick isn't registered in SDL database.
-
-	// if (ControlsManager.m_bFirstCapture == true) {
-		// memcpy(&ControlsManager.m_OldState, &ControlsManager.m_NewState, sizeof(ControlsManager.m_NewState));
-		
-		// ControlsManager.m_bFirstCapture = false;
-	// }
-
-	// RsPadButtonStatus bs;
-	// bs.padID = padID;
-
-	// RsPadEventHandler(rsPADBUTTONUP, (void *)&bs);
+		rightStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[2] : numAxes >= 2 ? axes[2] : 0.0f;
+		rightStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[3] : numAxes >= 3 ? axes[3] : 0.0f;
+	}
 	
-	// // Gamepad axes are guaranteed to return 0.0f if that particular gamepad doesn't have that axis.
-	// if ( glfwPad != -1 ) {
-		// leftStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[0] : numAxes >= 0 ? axes[0] : 0.0f;
-		// leftStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[1] : numAxes >= 1 ? axes[1] : 0.0f;
-
-		// rightStickPos.x = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[2] : numAxes >= 2 ? axes[2] : 0.0f;
-		// rightStickPos.y = ControlsManager.m_NewState.isGamepad ? gamepadState.axes[3] : numAxes >= 3 ? axes[3] : 0.0f;
-	// }
+	{
+		if (CPad::m_bMapPadOneToPadTwo)
+			bs.padID = 1;
+		
+		RsPadEventHandler(rsPADBUTTONUP,   (void *)&bs);
+		RsPadEventHandler(rsPADBUTTONDOWN, (void *)&bs);
+	}
 	
-	// {
-		// if (CPad::m_bMapPadOneToPadTwo)
-			// bs.padID = 1;
+	{
+		if (CPad::m_bMapPadOneToPadTwo)
+			bs.padID = 1;
 		
-		// RsPadEventHandler(rsPADBUTTONUP,   (void *)&bs);
-		// RsPadEventHandler(rsPADBUTTONDOWN, (void *)&bs);
-	// }
-	
-	// {
-		// if (CPad::m_bMapPadOneToPadTwo)
-			// bs.padID = 1;
-		
-		// CPad *pad = CPad::GetPad(bs.padID);
+		CPad *pad = CPad::GetPad(bs.padID);
 
-		// if ( Abs(leftStickPos.x)  > 0.3f )
-			// pad->PCTempJoyState.LeftStickX	= (int32)(leftStickPos.x  * 128.0f);
+		if ( Abs(leftStickPos.x)  > 0.3f )
+			pad->PCTempJoyState.LeftStickX	= (int32)(leftStickPos.x  * 128.0f);
 		
-		// if ( Abs(leftStickPos.y)  > 0.3f )
-			// pad->PCTempJoyState.LeftStickY	= (int32)(leftStickPos.y  * 128.0f);
+		if ( Abs(leftStickPos.y)  > 0.3f )
+			pad->PCTempJoyState.LeftStickY	= (int32)(leftStickPos.y  * 128.0f);
 		
-		// if ( Abs(rightStickPos.x) > 0.3f )
-			// pad->PCTempJoyState.RightStickX = (int32)(rightStickPos.x * 128.0f);
+		if ( Abs(rightStickPos.x) > 0.3f )
+			pad->PCTempJoyState.RightStickX = (int32)(rightStickPos.x * 128.0f);
 
-		// if ( Abs(rightStickPos.y) > 0.3f )
-			// pad->PCTempJoyState.RightStickY = (int32)(rightStickPos.y * 128.0f);
-	// }
+		if ( Abs(rightStickPos.y) > 0.3f )
+			pad->PCTempJoyState.RightStickY = (int32)(rightStickPos.y * 128.0f);
+	}
 	
 	return;
 }

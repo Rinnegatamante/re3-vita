@@ -5009,11 +5009,11 @@ CMenuManager::ProcessButtonPresses(void)
 							ControlsManager.InitDefaultControlConfigJoyPad(devCaps.dwButtons);
 						}
 #else
-						/*if (PSGLOBAL(joy1id) != -1 && glfwJoystickPresent(PSGLOBAL(joy1id))) {
+						if (PSGLOBAL(joy1id) != -1 && glfwJoystickPresent(PSGLOBAL(joy1id))) {
 							int count;
 							glfwGetJoystickButtons(PSGLOBAL(joy1id), &count);
 							ControlsManager.InitDefaultControlConfigJoyPad(count);
-						}*/
+						}
 #endif
 						m_ControlMethod = CONTROL_STANDARD;
 						MousePointerStateHelper.bInvertVertically = false;
