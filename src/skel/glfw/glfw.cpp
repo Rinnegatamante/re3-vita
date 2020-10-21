@@ -235,7 +235,7 @@ float* glfwGetJoystickAxes(int jid, int* count)
 	gAxes[GLFW_GAMEPAD_AXIS_LEFT_X]        = ((float)pad.lx - 128.0f) / 128.0f;
 	gAxes[GLFW_GAMEPAD_AXIS_LEFT_Y]        = ((float)pad.ly - 128.0f) / 128.0f;
 	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_X]       = ((float)pad.rx - 128.0f) / 128.0f;
-	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_X]       = ((float)pad.ry - 128.0f) / 128.0f;
+	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_Y]       = ((float)pad.ry - 128.0f) / 128.0f;
 	gAxes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]  = 0.0f;
 	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] = 0.0f;
 	if (count)
