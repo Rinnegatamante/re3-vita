@@ -44,10 +44,8 @@ char *getcwd(char *buf, size_t size) {
 }
 int chdir(const char *path) {
 		if (strncmp(path, "ux0:", 4) == 0) {
-			debug("absolute chdir: %s -> %s\n", cur_dir, path);
 			strcpy(cur_dir, path);
 		} else {
-			debug("relative path: %s -> %s/%s\n", cur_dir, cur_dir, path);
 			sprintf(cur_dir, "%s/%s", cur_dir, path);
 		}
     return 0;
@@ -269,7 +267,6 @@ CFileMgr::LoadFile(const char *file, uint8 *buf, int unused, const char *mode)
 	int fd;
 	size_t n, len;
 
-  debug("LoadFile: %s\n", file);
 	fd = myfopen(file, mode);
 	if(fd == 0)
 		return 0;
@@ -288,14 +285,12 @@ CFileMgr::LoadFile(const char *file, uint8 *buf, int unused, const char *mode)
 int
 CFileMgr::OpenFile(const char *file, const char *mode)
 {
-  debug("OpenFile: %s\n", file);
 	return myfopen(file, mode);
 }
 
 int
 CFileMgr::OpenFileForWriting(const char *file)
 {
-  debug("OpenFileForWriting: %s\n", file);
 	return OpenFile(file, "wb");
 }
 

@@ -450,7 +450,7 @@ _FindMP3s(void)
 		return;
 	}
 	
-	FILE *f = fopen("MP3\\MP3Report.txt", "w");
+	FILE *f = fopen("ux0:data/gta3/MP3\\MP3Report.txt", "w");
 	
 	if ( f )
 	{
@@ -961,7 +961,7 @@ cSampleManager::Initialise(void)
 	
 #ifdef AUDIO_CACHE
 	TRACE("cache");
-	FILE *cacheFile = fopen("audio\\sound.cache", "rb");
+	FILE *cacheFile = fopen("ux0:data/gta3/audio\\sound.cache", "rb");
 	if (cacheFile) {
 		fread(nStreamLength, sizeof(uint32), TOTAL_STREAMED_SOUNDS, cacheFile);
 		fclose(cacheFile);
@@ -1125,7 +1125,7 @@ cSampleManager::Initialise(void)
 	}
 #endif
 #ifdef AUDIO_CACHE
-	cacheFile = fopen("audio\\sound.cache", "wb");
+	cacheFile = fopen("ux0:data/gta3/audio\\sound.cache", "wb");
 	fwrite(nStreamLength, sizeof(uint32), TOTAL_STREAMED_SOUNDS, cacheFile);
 	fclose(cacheFile);
 	}

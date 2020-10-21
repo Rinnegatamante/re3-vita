@@ -224,21 +224,31 @@ unsigned char* glfwGetJoystickButtons(int jid, int* count)
 	gButtons[GLFW_GAMEPAD_BUTTON_DPAD_DOWN]    = pad.buttons & SCE_CTRL_DOWN     ? GLFW_PRESS : GLFW_RELEASE;
 	gButtons[GLFW_GAMEPAD_BUTTON_DPAD_LEFT]    = pad.buttons & SCE_CTRL_LEFT     ? GLFW_PRESS : GLFW_RELEASE;
 	if (count)
-		*count = GLFW_GAMEPAD_BUTTON_LAST+1; // TODO(theflow): correct?
+		*count = GLFW_GAMEPAD_BUTTON_LAST+1;
 	return gButtons;
 }
 
 float* glfwGetJoystickAxes(int jid, int* count)
 {
-	// TODO(theflow): Add axes support
-	memset(gAxes, 0, sizeof(gAxes));
+	SceCtrlData pad;
+	sceCtrlPeekBufferPositive(0, &pad, 1);
+	gAxes[GLFW_GAMEPAD_AXIS_LEFT_X]        = ((float)pad.lx - 128.0f) / 128.0f;
+	gAxes[GLFW_GAMEPAD_AXIS_LEFT_Y]        = ((float)pad.ly - 128.0f) / 128.0f;
+	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_X]       = ((float)pad.rx - 128.0f) / 128.0f;
+	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_X]       = ((float)pad.ry - 128.0f) / 128.0f;
+	gAxes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]  = 0.0f;
+	gAxes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] = 0.0f;
+	if (count)
+		*count = GLFW_GAMEPAD_AXIS_LAST+1;
 	return gAxes;
 }
 
 int glfwGetGamepadState(int jid, GLFWgamepadstate* state)
 {
-	glfwGetJoystickButtons(jid, NULL);
-	memcpy(state->buttons, gButtons, sizeof(gButtons));
+	unsigned char *buttons = glfwGetJoystickButtons(jid, NULL);
+	float *axes = glfwGetJoystickAxes(jid, NULL);
+	memcpy(state->buttons, buttons, sizeof(state->buttons));
+	memcpy(state->axes, axes, sizeof(state->axes));
 	return 1;
 }
 
@@ -1509,6 +1519,7 @@ WinMain(HINSTANCE instance,
 int
 main(int argc, char *argv[])
 {
+	sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG);
 	scePowerSetArmClockFrequency(444);
 	scePowerSetBusClockFrequency(222);
 	scePowerSetGpuClockFrequency(222);

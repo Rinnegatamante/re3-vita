@@ -68,8 +68,8 @@ struct
 int defaultProvider;
 
 
-char SampleBankDescFilename[] = "audio/sfx.SDT";
-char SampleBankDataFilename[] = "audio/sfx.RAW";
+char SampleBankDescFilename[] = "ux0:data/gta3/audio/sfx.SDT";
+char SampleBankDataFilename[] = "ux0:data/gta3/audio/sfx.RAW";
 
 FILE *fpSampleDescHandle;
 #ifdef AUDIO_OPUS
@@ -618,7 +618,7 @@ cSampleManager::Initialise(void)
 		}
 	}
 #ifdef AUDIO_CACHE
-	FILE *cacheFile = fopen("audio\\sound.cache", "rb");
+	FILE *cacheFile = fopen("ux0:data/gta3/audio\\sound.cache", "rb");
 	if (cacheFile) {
 		fread(nStreamLength, sizeof(uint32), TOTAL_STREAMED_SOUNDS, cacheFile);
 		fclose(cacheFile);
@@ -642,7 +642,7 @@ cSampleManager::Initialise(void)
 				USERERROR("Can't open '%s'\n", StreamedNameTable[i]);
 		}
 #ifdef AUDIO_CACHE
-		cacheFile = fopen("audio\\sound.cache", "wb");
+		cacheFile = fopen("ux0:data/gta3/audio\\sound.cache", "wb");
 		fwrite(nStreamLength, sizeof(uint32), TOTAL_STREAMED_SOUNDS, cacheFile);
 		fclose(cacheFile);
 #endif
