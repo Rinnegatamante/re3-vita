@@ -248,7 +248,7 @@ CStreaming::Init2(void)
 void
 CStreaming::Init(void)
 {
-#if defined(USE_TXD_CDIMAGE) && !defined(PSP2)
+#if defined(USE_TXD_CDIMAGE)
 	int txdHandle = CFileMgr::OpenFile("MODELS\\TXD.IMG", "r");
 	if (txdHandle)
 		CFileMgr::CloseFile(txdHandle);
