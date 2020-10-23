@@ -215,15 +215,11 @@ CMBlur::MotionBlurRender(RwCamera *cam, uint32 red, uint32 green, uint32 blue, u
 		OverlayRender(cam, pFrontBuffer, color, type, bluralpha);
 #else
 	if(BlurOn){
-		if(pFrontBuffer){
-			if(ms_bJustInitialised)
-				ms_bJustInitialised = false;
-			else
-				OverlayRender(cam, pFrontBuffer, color, type, bluralpha);
-		}
 		RwRasterPushContext(pFrontBuffer);
 		RwRasterRenderFast(RwCameraGetRaster(cam), 0, 0);
 		RwRasterPopContext();
+		if(pFrontBuffer)
+			OverlayRender(cam, pFrontBuffer, color, type, bluralpha);
 	}else{
 		OverlayRender(cam, nil, color, type, bluralpha);
 	}
