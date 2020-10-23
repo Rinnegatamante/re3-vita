@@ -219,7 +219,8 @@ enum Config {
 #endif
 
 // Particle
-//#define PC_PARTICLE
+#define PC_PARTICLE
+#define NO_ISLAND_LOADING
 //#define PS2_ALTERNATIVE_CARSPLASH // unused on PS2
 
 // Pad
